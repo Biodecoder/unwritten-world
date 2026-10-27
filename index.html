@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unwritten World — 2D Side-Scrolling Sandbox MMORPG</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="uw-app">
+    <canvas id="uw-world-canvas"></canvas>
+
+    <!-- TOP-LEFT: Collapsible Zone Banner, Minimap & Active Buffs (ss_5, ss_9) -->
+    <div id="uw-top-left">
+      <div id="uw-minimap-card">
+        <div class="uw-minimap-header">
+          <div class="uw-zone-title-wrap">
+            <span id="uw-region-name">Driftwood Shores</span>
+            <span id="uw-subzone-name">Lost At Sea</span>
+          </div>
+          <select id="uw-zone-select" title="Fast Travel Between Regions (No Level Gates!)">
+            <option value="driftwood_shores">Driftwood Shores — Lost At Sea</option>
+            <option value="namu_rest">Namu Forest — Namu's Rest (Hub)</option>
+            <option value="sprout_forest">Namu Forest — Sprout Forest & Rapids</option>
+            <option value="giblers_mines">Namu Forest — Gibler's Mines</option>
+            <option value="bayou_ashen">Bayou Badlands & Ashen Expanse</option>
+          </select>
+          <button id="uw-minimap-toggle" class="uw-icon-btn" title="Toggle Minimap">^</button>
+        </div>
+        <div id="uw-minimap-body">
+          <canvas id="uw-minimap-canvas" width="236" height="128"></canvas>
+          <div class="uw-emergent-bar">
+            <button id="uw-btn-spawn-greed" class="uw-mini-pill" title="Trigger a shadowy Greed Spirit ambush!">👻 Ambush: Greed Spirit</button>
+            <button id="uw-btn-spawn-tree" class="uw-mini-pill" title="Sprout a harvestable Acorn Tree!">🌰 Acorn → Tree</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="uw-buff-strip"></div>
+    </div>
+
+    <!-- TOP-CENTER: Boss Health Bar with Combo & Cumulative Damage Counter (ss_6.jpg) -->
+    <div id="uw-boss-bar" class="hidden">
+      <div class="uw-boss-portrait" id="uw-boss-portrait">👾</div>
+      <div class="uw-boss-main">
+        <div class="uw-boss-top-row">
+          <span id="uw-boss-name">Mutant Slime</span>
+          <div class="uw-boss-combo-wrap">
+            <span id="uw-boss-combo">x1</span>
+            <span id="uw-boss-total-dmg">-0</span>
+          </div>
+        </div>
+        <div class="uw-boss-hp-track">
+          <div id="uw-boss-hp-fill"></div>
+          <span id="uw-boss-hp-text">200,000 / 200,000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP-RIGHT: Quest Tracker (ss_5, ss_7, ss_8) -->
+    <div id="uw-quest-tracker">
+      <div class="uw-quest-header">
+        <span id="uw-quest-count">Quests 5/5</span>
+        <button id="uw-quest-toggle" class="uw-icon-btn" title="Collapse Quests">^</button>
+      </div>
+      <div id="uw-quest-list"></div>
+    </div>
+
+    <!-- MODAL WINDOWS (Bestiary, Crafting, Leaderboard, Classes, Life Skills & Artificing, Inventory) -->
+    <div id="uw-modal-backdrop" class="hidden">
+      <div id="uw-modal-window">
+        <div class="uw-modal-header">
+          <div class="uw-modal-title-group">
+            <span id="uw-modal-icon">👑</span>
+            <h2 id="uw-modal-title">Leaderboard</h2>
+          </div>
+          <div class="uw-modal-nav-tabs">
+            <button class="uw-nav-tab" data-modal="inventory">🎒 Inventory & Gear</button>
+            <button class="uw-nav-tab" data-modal="classes">⚔️ 8 Classes</button>
+            <button class="uw-nav-tab" data-modal="crafting">🔨 Crafting</button>
+            <button class="uw-nav-tab" data-modal="lifeskills">🌿 10 Life Skills & Artificing</button>
+            <button class="uw-nav-tab" data-modal="bestiary">📖 Bestiary & Cards</button>
+            <button class="uw-nav-tab" data-modal="leaderboard">👑 Leaderboard</button>
+          </div>
+          <button id="uw-modal-close" class="uw-close-btn" title="Close (Esc)">✕</button>
+        </div>
+        <div id="uw-modal-content"></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM-LEFT: Activity Feed & Chat Box (ss_1 - ss_9) -->
+    <div id="uw-bottom-left">
+      <div id="uw-activity-feed"></div>
+      <div id="uw-chat-box">
+        <div id="uw-chat-messages"></div>
+        <div class="uw-chat-input-row">
+          <input id="uw-chat-input" type="text" placeholder="Press Enter to chat or type /class bushido, /greed, /tree..." />
+          <select id="uw-chat-channel">
+            <option value="All">All</option>
+            <option value="World">World</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM-CENTER: Shield / HP / MP Bars + 12-Slot Skill & Item Hotbar (ss_1 - ss_9) -->
+    <div id="uw-bottom-center">
+      <div class="uw-vitals-row">
+        <div class="uw-vitals-left">
+          <div class="uw-shield-bar-track">
+            <div id="uw-shield-fill"></div>
+            <span id="uw-shield-text">0</span>
+          </div>
+          <div class="uw-hp-bar-Row">
+            <span id="uw-hp-regen" class="uw-regen-tag">+6</span>
+            <div class="uw-hp-bar-track">
+              <div id="uw-hp-fill"></div>
+              <span id="uw-hp-text">180/180</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="uw-vitals-right">
+          <div class="uw-char-header">
+            <span id="uw-char-level" class="uw-lvl-gold">Lv. 1</span>
+            <span id="uw-char-name">Piper</span>
+            <span id="uw-char-class-badge" class="uw-class-tag">Castaway</span>
+            <span id="uw-char-rasa" class="uw-rasa-tag">⚡ 120</span>
+          </div>
+          <div class="uw-mp-bar-Row">
+            <div class="uw-mp-bar-track">
+              <div id="uw-mp-fill"></div>
+              <span id="uw-mp-text">90/90</span>
+            </div>
+            <span id="uw-mp-regen" class="uw-regen-tag">+5</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="uw-hotbar"></div>
+    </div>
+
+    <!-- BOTTOM-RIGHT: Quest Ready Toast & 6 System Menu Buttons (ss_1 - ss_9) -->
+    <div id="uw-bottom-right">
+      <div id="uw-quest-toast" class="hidden"></div>
+      <div id="uw-system-tray">
+        <button class="uw-tray-btn" data-open-modal="inventory" title="Inventory, Equipment & Imbuing [I]">
+          <span class="uw-tray-icon">🎒</span>
+          <span class="uw-tray-badge">!</span>
+        </button>
+        <button class="uw-tray-btn" data-open-modal="classes" title="8 Playable Classes & Stats [C]">
+          <span class="uw-tray-icon">🪖</span>
+          <span class="uw-tray-badge">!</span>
+        </button>
+        <button class="uw-tray-btn" data-open-modal="lifeskills" title="10 Life Skills & Artificing [K]">
+          <span class="uw-tray-icon">🌿</span>
+        </button>
+        <button class="uw-tray-btn" data-open-modal="crafting" title="Crafting & Workstations [G]">
+          <span class="uw-tray-icon">🔨</span>
+          <span class="uw-tray-badge">!</span>
+        </button>
+        <button class="uw-tray-btn" data-open-modal="bestiary" title="Bestiary & Wearable Monster Cards [B]">
+          <span class="uw-tray-icon">🚩</span>
+          <span class="uw-tray-badge">!</span>
+        </button>
+        <button class="uw-tray-btn" data-open-modal="leaderboard" title="Real-Time Leaderboard & Stat Tracking [L]">
+          <span class="uw-tray-icon">🏆</span>
+        </button>
+        <button class="uw-tray-btn" id="uw-btn-audio" title="Toggle Sound [M]">
+          <span class="uw-tray-icon" id="uw-audio-icon">🔇</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- BOTTOM FULL-WIDTH EXPERIENCE BAR (ss_1 - ss_9) -->
+    <div id="uw-xp-bar">
+      <div id="uw-xp-fill"></div>
+      <span id="uw-xp-text">0/100 (0.00%)</span>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

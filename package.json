@@ -1,0 +1,13 @@
+{
+  "name": "unwritten-world",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Unwritten World (Steam 4314900 Clone) — 2D Side-Scrolling Action-Platformer MMORPG with 8 Classes, 10 Life Skills, Wearable Monster Cards, Emergent Greed Spirit & Acorn-Tree Events, and Live Leaderboards.",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/simulation.test.mjs",
+    "qa": "node scripts/qa_verify.mjs",
+    "check": "npm test && npm run qa"
+  }
+}
